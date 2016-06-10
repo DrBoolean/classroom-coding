@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "async": "^1.4.2",
+    "babel-cli": "^6.9.0",
     "babel-core": "^6.2.1",
     "babel-loader": "^6.2.0",
     "css-loader": "^0.15.6",

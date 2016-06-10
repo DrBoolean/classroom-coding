@@ -9,7 +9,7 @@ app.set('port', 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(bodyParser.json());
-app.use(express.static(path.resolve(__dirname, 'public')));
+app.use(express.static(path.resolve(__dirname, '../../public')));
 
 const main = () => {
   server(app)
