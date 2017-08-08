@@ -1,5 +1,8 @@
+const path = require('path');
+
 var webpack = require('webpack');
 var glob = require('glob');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 var config = {
   entry: {
@@ -8,47 +11,65 @@ var config = {
   },
 
   resolve: {
-    extensions: ['', '.js', '.jsx'],
-    modulesDirectories: ['node_modules'].concat(glob.sync('./src/frontend/**/*'))
-  },
-
+    //WP2 no empties.
+    extensions: ['.js', '.jsx'],
+    //WP2    modulesDirectories: ['node_modules'].concat(glob.sync('./src/frontend/**/*'))
+    modules: [
+            path.resolve(__dirname, 'node_modules'),
+         './src/frontend/**/*'
+  ]},
   plugins: [
-    new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.js', Infinity),
+    // WP2 - Clean out ./public between builds.
+   new CleanWebpackPlugin(['./public']),
+
+    // WP2 Depreciated - needs one argument.
+    new webpack.optimize.CommonsChunkPlugin( {name: 'vendors', filename: 'vendors.js', minChunks: Infinity} ),
+   
+    new webpack.LoaderOptionsPlugin({
+      options: {
+         eslint: {
+             configFile: './.eslintrc'
+           }
+      }
+    }),
 
     new webpack.ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery',
       'window.jquery': 'jquery'
     }),
-
-    new webpack.NoErrorsPlugin()
+    // WP2 replaced 'NoErrorsPlugin'.
+    new webpack.NoEmitOnErrorsPlugin()
   ],
-
-  output: {
-    path: './public',
-    filename: '[name].js'
+output: {
+   filename: '[name].bundle.js',
+   path: path.resolve(__dirname, './public')
   },
+  //WP2 output: {
+  //WP2   path: './public',
+  //WP2   filename: '[name].js'
+  //WP2 },
 
   module: {
-    noParse: [],
-    loaders: [
-      {test: /\.jsx?$/,
+    rules: [
+      {test: /\.js[x]?$/,
         exclude: /node_modules/,
-        loader: 'react-hot'
+        //WP2 be specific.
+        loader: 'react-hot-loader'
       },
       {
-        test: /\.jsx?$/,
+        test: /\.js[x]?$/,
         exclude: /node_modules/,
-        loader: 'babel?presets[]=react,presets[]=es2015'
+        // WP2 be specific. 
+        loader: 'babel-loader?presets[]=react,presets[]=es2015'
       },
       { test: /\.css$/, loader: 'style!css' },
-      { test: /\.html$/, loader: 'file?name=[name].[ext]' }
-    ],
-
-    preLoaders: [
+      { test: /\.html$/, loader: 'file?name=[name].[ext]' },
+      //WP2 no more preLoaders: [
       {
-        test: /\.jsx?$/,
-        loader: 'eslint',
+        enforce: 'pre',
+        test: /\.js[x]?$/,
+        loader: 'eslint-loader',
         exclude: /node_modules/
       }
     ]
@@ -60,10 +81,8 @@ var config = {
     proxy: { '*': 'http://localhost:3000' }
   },
 
-  eslint: {
-    configFile: './.eslintrc'
-  }
 };
 
 module.exports = config;
+
 
